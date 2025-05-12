@@ -8,6 +8,7 @@ class OrderBook:
         self.cancelled_orders = {}
         self.successful_transactions = []
         self.event_store = EventStore()
+        self.replay()
 
     def apply(self, event: Event) -> None:
         if event.event_type == EventType.OrderPlaced:
@@ -38,6 +39,7 @@ class Account:
         self.account_id = account_id
         self.balance = 0
         self.event_store = EventStore()
+        self.replay()
 
     def apply(self, event: Event) -> None:
         if event.event_type == EventType.FundsDebited:

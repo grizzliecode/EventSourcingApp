@@ -15,7 +15,7 @@ class AggregateType(Enum):
 @dataclass
 class Event:
     aggregate_type : AggregateType
-    aggregate_id : str
+    aggregate_id : int
     event_type : EventType
     version : int
     data : Dict[str, Any]

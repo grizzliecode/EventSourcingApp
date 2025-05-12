@@ -10,10 +10,11 @@ EVENTS_FILE = "events.json"
 class EventStore:
 
     def append(self, event: Event) -> bool:
+        aggregate_id = str(event.aggregate_id)
         general_path = os.path.join(os.path.abspath(EVENTS_DIR), EVENTS_FILE)
         aggregate_dir = os.path.join(os.path.abspath(EVENTS_DIR), str(event.aggregate_type))
         os.makedirs(aggregate_dir, exist_ok=True)
-        aggregate_path = os.path.join(aggregate_dir, event.aggregate_id + ".json")
+        aggregate_path = os.path.join(aggregate_dir, aggregate_id + ".json")
         content = []
         version = 0
         if os.path.isfile(aggregate_path):
@@ -42,7 +43,8 @@ class EventStore:
                 content.extend(json.load(fin))
         return [Event.from_dict(d) for d in content]
 
-    def get_specific_events(self, aggregate_type: AggregateType, aggregate_id : str  ) -> List[Event]:
+    def get_specific_events(self, aggregate_type: AggregateType, aggregate_id : int  ) -> List[Event]:
+        aggregate_id = str(aggregate_id)
         aggregate_dir = os.path.join(os.path.abspath(EVENTS_DIR), str(aggregate_type))
         os.makedirs(aggregate_dir, exist_ok=True)
         aggregate_path = os.path.join(aggregate_dir, aggregate_id + ".json")
@@ -52,4 +54,16 @@ class EventStore:
                 content.extend(json.load(fin))
         return [Event.from_dict(d) for d in content]
 
+    def get_last_version(self, aggregate_type: AggregateType, aggregate_id : int ) -> int:
+        aggregate_id = str(aggregate_id)
+        aggregate_dir = os.path.join(os.path.abspath(EVENTS_DIR), str(aggregate_type))
+        os.makedirs(aggregate_dir, exist_ok=True)
+        aggregate_path = os.path.join(aggregate_dir, aggregate_id + ".json")
+        content = []
+        if os.path.isfile(aggregate_path):
+            with open(aggregate_path, "r") as fin:
+                content.extend(json.load(fin))
+        if(len(content) == 0):
+            return 0
+        return content[-1].get("version", 0)
 
