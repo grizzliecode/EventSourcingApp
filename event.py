@@ -2,7 +2,7 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 from typing import Dict, Any
 class EventType(Enum):
-    OrderedPlaced = 1
+    OrderPlaced = 1
     OrderCancelled = 2
     TradeExecuted = 3
     FundsDebited = 4
@@ -19,6 +19,38 @@ class Event:
     event_type : EventType
     version : int
     data : Dict[str, Any]
+    '''
+        For:
+            - OrderPlaced data = {
+                                   order_id : int 
+                                   user_id : int
+                                   type : int (sell = 0, buy = 1)
+                                   product_id : int (= aggregate_id)
+                                   quantity : int
+                                   price : int
+                                    } 
+            - OrderCancelled data = {
+                                    order_id : int      
+                                    user_id : int
+                                    type : int (sell = 0, buy = 1)
+                                    product_id : int (= aggregate_id)
+                                    quantity : int
+                                    price : int
+                                    }
+            - TradeExecuted data = {
+                                    product_id : int (= aggregate_id)
+                                    order1_id : int
+                                    order2_id : int
+                                    }
+            - FundsDebited data = {
+                                    user_id : int (= aggregate_id)
+                                    amount : int
+                                    }
+            - FundsCredited data = {
+                                    user_id : int (= aggregate_id)
+                                    amount : int
+                                    }
+    '''
 
     @staticmethod
     def from_dict(d: Dict[str, Any]) -> "Event":
