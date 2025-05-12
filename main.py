@@ -38,12 +38,8 @@ def main():
         if order_id != -1:
             command_handler.transaction(order_id, args.product_id)
     elif args.command == "cancel_order":
-        order_book = OrderBook(args.product_id)
-        if args.order_id in order_book.active_orders:
-            response = command_handler.cancell_order(args.order_id, args.product_id)
-            print(response)
-        else:
-            print(f"Order {args.order_id} not found.")
+        response = command_handler.cancell_order(args.order_id, args.product_id)
+        print(response)
     elif args.command == "credit_funds":
         response = command_handler.credit_funds(args.user_id, args.amount)
         print(response)
