@@ -3,7 +3,7 @@ from event import Event, EventType, AggregateType
 from  store import EventStore
 from aggregates import OrderBook, Account
 import argparse
-
+from replay import App
 
 def main():
     parser = argparse.ArgumentParser(description='Event Sourcing Trading System CLI.')
@@ -28,6 +28,8 @@ def main():
     debit_funds_parser.add_argument("user_id", type=int, help="User ID to debit funds from")
     debit_funds_parser.add_argument("amount", type=int, help="Amount to debit")
 
+    replay_parser = subparsers.add_parser("replay", help="Replay all the events.")
+
     args = parser.parse_args()
 
     if args.command == "place_order":
@@ -48,7 +50,9 @@ def main():
     elif args.command == "debit_funds":
         response = command_handler.debit_funds(args.user_id, args.amount)
         print(response)
-
+    elif args.command == "replay":
+        app = App()
+        app.replay()
     else:
         print("Unknown command.")
 

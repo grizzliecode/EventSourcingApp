@@ -5,9 +5,9 @@ from event import Event, EventType, AggregateType
 
 
 def place_order(user_id: int, _type: int, product_id: int, quantity:int, price:int) -> (Dict[str, str], int):
-    orderBook = OrderBook(product_id)
+    orderBook = OrderBook(product_id, True)
     order_id = len(orderBook.active_orders) + len(orderBook.cancelled_orders) + 2 * len(orderBook.successful_transactions) + 1
-    account = Account(user_id)
+    account = Account(user_id, True)
     store = EventStore()
     if price > account.balance and _type == 1:
         return {"status": "Fail. Insufficient funds."}, -1
@@ -32,7 +32,7 @@ def place_order(user_id: int, _type: int, product_id: int, quantity:int, price:i
 
 def transaction(order_id: int, product_id: int):
     store = EventStore()
-    orderBook = OrderBook(product_id)
+    orderBook = OrderBook(product_id, True)
     my_order = orderBook.active_orders.get(order_id)
     for orderID, order in orderBook.active_orders.items():
         if order_id != orderID:
@@ -62,11 +62,11 @@ def transaction(order_id: int, product_id: int):
 
 def cancell_order(order_id: int, product_id: int):
     store = EventStore()
-    orderBook = OrderBook(product_id)
+    orderBook = OrderBook(product_id, True)
     order = orderBook.active_orders.get(order_id)
     if order is None:
         return {"status": "Fail. Order not found."}
-    account = Account(order.get("user_id"))
+    account = Account(order.get("user_id"), True)
     if order.get("type") == 1:
         seller = order.get("user_id")
         conf = False
@@ -91,7 +91,7 @@ def cancell_order(order_id: int, product_id: int):
 
 
 def debit_funds(user_id: int, amount: int) -> Dict[str, str]:
-    account = Account(user_id)
+    account = Account(user_id, True)
     store = EventStore()
     if account.balance < amount:
         return {"status": "Fail. Insufficient funds."}
@@ -107,7 +107,7 @@ def debit_funds(user_id: int, amount: int) -> Dict[str, str]:
 
 
 def credit_funds(user_id: int, amount: int) -> Dict[str, str]:
-    account = Account(user_id)
+    account = Account(user_id, True)
     store = EventStore()
     conf = False
     while conf == False:

@@ -2,13 +2,14 @@ from event import Event, EventType, AggregateType
 from store import EventStore
 
 class OrderBook:
-    def __init__(self, aggregate_id):
+    def __init__(self, aggregate_id, replay : bool = False):
         self.aggregate_id = aggregate_id
         self.active_orders = {}
         self.cancelled_orders = {}
         self.successful_transactions = []
         self.event_store = EventStore()
-        self.replay()
+        if replay:
+            self.replay()
 
     def apply(self, event: Event) -> None:
         if event.event_type == EventType.OrderPlaced:
@@ -30,16 +31,20 @@ class OrderBook:
             y = self.active_orders.pop(event.data.get("order2_id",0), None)
 
     def replay(self):
+        self.active_orders.clear()
+        self.successful_transactions.clear()
+        self.cancelled_orders.clear()
         events = self.event_store.get_specific_events(AggregateType.OrderBook, aggregate_id=self.aggregate_id)
         for event in events:
             self.apply(event)
 
 class Account:
-    def __init__(self, account_id):
+    def __init__(self, account_id, replay: bool = False):
         self.account_id = account_id
         self.balance = 0
         self.event_store = EventStore()
-        self.replay()
+        if replay:
+            self.replay()
 
     def apply(self, event: Event) -> None:
         if event.event_type == EventType.FundsDebited:
@@ -48,6 +53,7 @@ class Account:
             self.balance += event.data.get("amount", 0)
 
     def replay(self):
+        self.balance = 0
         events = self.event_store.get_specific_events(AggregateType.Account, self.account_id)
         for event in events:
             self.apply(event)
